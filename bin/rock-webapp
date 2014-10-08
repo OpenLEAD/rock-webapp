@@ -70,7 +70,19 @@ app = Rack::Builder.new do
     
     #map the apis
     
-    map '/api/tasks' do
+    class API < Grape::API
+    end
+
+    API.resource 'tasks' do
+        mount Rock::WebApp::Tasks::Root
+    end
+    if syskit
+        API.resource 'syskit' do
+            mount Rock::WebApp::Syskit::Root
+        end
+    end
+    
+    map '/api' do
         if !cors_hosts.empty?
             require 'rack/cors'
             use Rack::Cors do
@@ -80,23 +92,9 @@ app = Rack::Builder.new do
                 end
             end
         end
-        run Rock::WebApp::Tasks::Root
-    end
-    
-    if syskit      
-        map '/api/syskit' do
-            if !cors_hosts.empty?
-                require 'rack/cors'
-                use Rack::Cors do
-                    allow do
-                        origins(*cors_hosts)
-                        resource '*', headers: :any, methods: [:get, :post]
-                    end
-                end
-            end
-            run Rock::WebApp::Syskit::Root
-        end
+        run API
     end
 end
+
 thin.run(app, Host: thin_host, Port: thin_port)
 
