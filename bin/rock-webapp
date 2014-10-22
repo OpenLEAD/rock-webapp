@@ -30,6 +30,9 @@ options = OptionParser.new do |opt|
     opt.on('--enable-syskit',"load syskit support") do
         syskit=true
     end
+    opt.on('--trace', 'enable tracing of all requests') do
+        Thin::Logging.trace_logger = Thin::Logging.logger
+    end
 end
 options.parse ARGV
 
