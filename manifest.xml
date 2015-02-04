@@ -8,6 +8,7 @@
   <depend package="hoe" />
   <depend package="hoe-yard" />
   <depend package="utilrb" />
+  <depend package="tools/orocos.rb" />
 
   <!--   webserver for bin/rock-webapp -->
   <depend package="thin" optional="1"/>
