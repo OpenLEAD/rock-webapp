@@ -105,17 +105,21 @@ module Rock
                             
                         else # Direct polling mode
                             count = params.fetch(:count, 1)
-                            reader = port.reader(init: true, pull: true)
-                            result = Array.new
-                            (params[:timeout] / params[:poll_period]).ceil.times do
-                                while sample = reader.raw_read_new
-                                    result << Hash[:value => sample.to_json_value(:special_float_values => :string)]
-                                    if result.size == count
-                                        return result
-                                    end
-                                end
-                                sleep params[:poll_period]
-                            end
+			    reader = port.reader(init: true, pull: true)
+			    begin
+				result = Array.new
+				(params[:timeout] / params[:poll_period]).ceil.times do
+				    while sample = reader.raw_read_new
+				        result << Hash[:value => sample.to_json_value(:special_float_values => :string)]
+				        if result.size == count
+				    	return result
+				        end
+				    end
+				    sleep params[:poll_period]
+				end
+			    ensure
+			        reader.disconnect
+			    end
                             error! "did not get any sample from #{params[:name]}.#{params[:port_name]} in #{params[:timeout]} seconds", 408
                         end
                     end
